@@ -5,11 +5,11 @@ public class UserDao {
         //mysql driver load
         Class.forName("com.mysql.jdbc.Driver");
         //Connection 맺고
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/jeju"
-                , "jeju", "jejupw");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/ojlee"
+                , "root", "amdapu");
         //sql 작성하고
         PreparedStatement preparedStatement =
-                connection.prepareStatement("select * from userinfo where id = ?");
+                connection.prepareStatement("select * from User where id = ?");
         preparedStatement.setInt(1, id);
         //sql 실행하고
         ResultSet resultSet = preparedStatement.executeQuery();
