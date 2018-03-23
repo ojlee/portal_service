@@ -2,7 +2,7 @@
 
 public class DaoFactory {
     public UserDao getUserDao() {
-        return new UserDao(getConnectionMaker());
+        return new UserDao(new JejuConnectionMaker());
     }
 
     public ConnectionMaker getConnectionMaker() {
