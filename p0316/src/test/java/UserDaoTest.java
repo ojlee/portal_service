@@ -11,10 +11,11 @@ public class UserDaoTest {
 
     private UserDao userDao;
 //    private UserDao hallaUserDao;
+    private DaoFactory daoFactory;
 
     @Before
     public void setup(){
-        userDao = new UserDao();
+        userDao = daoFactory.getUserDao();
 //        userDao = new JejuUserDao();
 //        hallaUserDao = new HallaUserDao();
     }
