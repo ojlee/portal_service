@@ -1,8 +1,12 @@
 import static org.hamcrest.MatcherAssert.*; // 이 안의 static 메소드들을 자유롭게 이용가능
 import static org.hamcrest.CoreMatchers.*;
 
+import javafx.application.Application;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.sql.SQLException;
 
@@ -16,9 +20,8 @@ public class UserDaoTest {
     @Before
     public void setup(){
         daoFactory = new DaoFactory();
-        userDao = daoFactory.getUserDao();
-//        userDao = new JejuUserDao();
-//        hallaUserDao = new HallaUserDao();
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DaoFactory.class);
+        userDao = applicationContext.getBean("userDao", UserDao.class);
     }
 
     @Test //실행
