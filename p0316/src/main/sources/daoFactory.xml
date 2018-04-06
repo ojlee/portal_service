@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="userDao" class="UserDao" >
+        <constructor-arg ref="connectionMaker"/>
+    </bean>
+    <bean id="connectionMaker" class="JejuConnectionMaker">
+        <property name="username" value="root" />
+        <property name="password" value="amdapu" />
+        <property name="url" value="jdbc:mysql://localhost/ojlee?characterEncoding=utf-8"/>
+        <property name="className" value="com.mysql.jdbc.Driver" />
+    </bean>
+</beans>

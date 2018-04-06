@@ -1,66 +1,150 @@
+import javax.sql.DataSource;
 import java.sql.*;
 
-
 public class UserDao {
-    private final ConnectionMaker connectionMaker;// 한라대 디펜던시 문제 심함
+    private final DataSource dataSource;
 
-    public UserDao(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public User get(int id) throws ClassNotFoundException, SQLException {
-        Connection connection = connectionMaker.getConnection();
-
-        //sql 작성하고
-        PreparedStatement preparedStatement =
-                connection.prepareStatement("select * from User where id = ?");
-        preparedStatement.setInt(1, id);
-        //sql 실행하고
-        ResultSet resultSet = preparedStatement.executeQuery();
-        //결과를 User 에 매핑하고
-        resultSet.next();
-        User user = new User();
-        user.setId(resultSet.getInt("id"));
-        user.setName(resultSet.getString("name"));
-        user.setPassword(resultSet.getString("password"));
-        //자원을 해지하고
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-        //결과를 리턴한다.
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        User user = null;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement("select * from user where id = ?");
+            preparedStatement.setInt(1, id);
+            resultSet = preparedStatement.executeQuery();
+            if(resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+            }
+        } finally {
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+        }
         return user;
     }
 
     public Integer insert(User user) throws SQLException, ClassNotFoundException {
-        //mysql driver load
-        Connection connection = connectionMaker.getConnection();
-        //sql 작성하고
-        PreparedStatement preparedStatement =
-                connection.prepareStatement("insert into User(name, password) VALUES  (?, ?)");
-        preparedStatement.setString(1, user.getName());
-        preparedStatement.setString(2, user.getPassword());
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Integer id;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(
+                    "insert into user(name, password) values (?, ?)");
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
 
+            preparedStatement.executeUpdate();
 
-        preparedStatement.executeUpdate();
-        preparedStatement = connection.prepareStatement("SELECT last_insert_id()");
+            preparedStatement = connection.prepareStatement("select last_insert_id()");
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
 
-        //sql 실행하고
-        ResultSet resultSet = preparedStatement.executeQuery();
-        //결과를 User 에 매핑하고
-        resultSet.next();
+            id = resultSet.getInt(1);
+        } finally {
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
-        Integer id = resultSet.getInt(1);
-
-        //자원을 해지하고
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-        //결과를 리턴한다.
-
+        }
         return id;
     }
 
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        return connectionMaker.getConnection();
+    public void update(User user) throws SQLException, ClassNotFoundException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(
+                    "update user set name = ?, password = ? where id = ?");
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setInt(3, user.getId());
+
+            preparedStatement.executeUpdate();
+
+        } finally {
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+        }
+    }
+
+    public void delete(Integer id) throws SQLException, ClassNotFoundException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            preparedStatement = connection.prepareStatement(
+                    "delete from user where id = ?");
+            preparedStatement.setInt(1, id);
+
+            preparedStatement.executeUpdate();
+
+        } finally {
+            if (preparedStatement != null)
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            if (connection != null)
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+        }
     }
 }
